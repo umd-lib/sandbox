@@ -1,2 +1,3 @@
 ..this is a test file
 THis is the second line as well
+This is the third line
