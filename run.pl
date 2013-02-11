@@ -1,14 +1,12 @@
 #!/usr/bn/perl
-# add this for test
-# add this for the second test
 
 #This function executes the command it recieves and displays the result.
 sub execute {
     my $cmd = shift;
-    #print "$cmd\n";
+    print "$cmd\n";
     $mycmd=system($cmd);
-    
-    if($retVal!=0){
+    print "The retval is :$retVal\n";
+    if($retVal!=0 || $retVal==null || $retVal eq ""){
         #Means the command has failed.
         exit 1;
     }
@@ -45,7 +43,7 @@ elsif(lc($ARGV[0]) eq "clean"){
     print "starting \"$run\"\n";
     execute($run);
     
-}elsif(@ARGV!=null && (lc($ARGV[0]) eq "pull" ||  lc($arg) eq "commit" || lc($arg) eq "push" ) ){
+}elsif(@ARGV!=null && (lc($ARGV[0]) eq "pull" ||  lc($ARGV[0]) eq "commit" || lc($ARGV[0]) eq "push" ) ){
     
     foreach $arg (@ARGV){
         if(lc($arg) eq "pull"){
