@@ -12,4 +12,4 @@ Documentation
 
 Misc
 ----
-text added using the github editor; more text added in ZEN mode; link to user [wallberg-umd](wallberg-umd)
+text added using the github editor; more text added in ZEN mode; link to user [wallberg-umd](https://github.com/wallberg-umd)
