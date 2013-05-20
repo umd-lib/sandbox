@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.umd.lib</groupId>
   <artifactId>sandbox</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2-SNAPSHOT</version>
   <name>UMD Libraries Sandbox</name>
   <description>Sandbox for experimenting with Git and GitHub</description>
   <build>
@@ -14,6 +14,14 @@
         <configuration>
           <source />
           <target />
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.atlassian.maven.plugins</groupId>
+        <artifactId>maven-jgitflow-plugin</artifactId>
+        <version>1.0-alpha7</version>
+        <configuration>
+          <!-- see goals wiki page for configuration options -->
         </configuration>
       </plugin>
     </plugins>
