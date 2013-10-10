@@ -1,0 +1,164 @@
+#!/usr/bin/perl
+
+#####################################################################
+# Copyright 2007, The University of Maryland.  All rights reserved.
+# 
+# Program:   fedora-index-batch
+# 
+# Author:    Ben Wallberg
+# 
+# Purpose:   Run fedora indexing in batch mode
+#
+# Usage:     See PrintUsageAndExit();
+#
+# Comments:  
+#
+# Revision History:
+# 
+#   2005/09/26: Ben
+#     - initial version.
+# 
+#####################################################################
+
+use Getopt::Std;
+use IPC::Open2;
+
+#
+# Check the command-line parameters
+#
+GetCmdLine();
+
+#
+# Build classpath
+#
+$tomcat = "$ENV{FEDORA_HOME}/server/tomcat";
+$ENV{CLASSPATH} = "";
+
+@dirs = ("$ENV{FEDORA_HOME}/lib",
+     "$ENV{FEDORA_HOME}/client");
+
+foreach $dir (@dirs) {
+    opendir DIR, $dir || die;
+    foreach $file (readdir DIR) {
+    if ($file =~ /\.jar$/) {
+        if ($ENV{CLASSPATH} ne "") {
+        $ENV{CLASSPATH} .= ":";
+        }
+        $ENV{CLASSPATH} .= "$dir/$file";
+    }
+    }
+}
+
+#
+# Build the cmd
+#
+#@cmd = ("$ENV{JAVA_HOME}/bin/java",
+#    "-Dbatchindex.config=$config",
+#    "-Dbatchindex.optimize=$optimize",
+#    );
+@cmd = ("$ENV{JAVA_HOME}/bin/java",
+#    "-Xdebug", 
+#    "-Xnoagent", 
+#    "-Djava.compiler=NONE",
+#    "-Xrunjdwp:transport=dt_socket,address=4000,server=y,suspend=y",
+    "-Dbatchindex.config=$config",
+    "-Dbatchindex.optimize=$optimize",
+    );
+push @cmd, "-Dbatchindex.index=${index}" if (defined $index);
+push @cmd, "-Dbatchindex.logconfig=${log4j}" if (defined $log4j);
+push @cmd, "-Daction=${action}" if (defined $action);
+push @cmd, "-DfileName=${fileName}" if (defined $fileName);
+push @cmd, "edu.umd.lims.fedora.search.client.BatchIndex";
+
+#print (join ' ',@cmd);
+#print "\n";
+
+exec @cmd;
+
+########################################################## GetCmdLine
+# Process the command line options.
+#####################################################################
+
+sub GetCmdLine {
+
+    if ($#ARGV == 0 && $ARGV[0] eq "-h") {
+        PrintUsageAndExit();
+    }
+
+    # Environment variables
+
+    # Options
+    if ( ! getopts('a:c:i:ol:f:')) {
+        print STDERR "Error in option processing\n\n";
+        PrintUsageAndExit();
+    }
+
+    # <action>
+    if (defined $opt_a) {
+        $action = $opt_a;
+    }
+
+    # <config>
+    if (defined $opt_c) {
+        $config = $opt_c;
+    } elsif (! defined $ENV{FEDORA_HOME}) {
+       PrintUsageAndExit("FEDORA_HOME environment variable is required");
+    } else {
+       $config = "$ENV{FEDORA_HOME}/server/config/properties.xml";
+    }
+
+    # <index>
+    if (defined $opt_i) {
+       $index = $opt_i;
+    }
+
+    # -o
+    $optimize = (defined $opt_o ? "true" : "false");
+
+    # <log4j>
+    if (defined $opt_l) {
+       $log4j = $opt_l;
+    }
+
+    if (defined $opt_f) {
+        $fileName = $opt_f;
+    }
+}
+
+
+################################################### PrintUsageAndExit
+# Print the program usage and exit.
+#####################################################################
+
+sub PrintUsageAndExit {
+
+    if (@_) {
+        foreach $msg (@_) {
+            print STDERR "$msg\n";
+        }
+        print "\n";
+    }
+        
+    print STDERR <<"EOS";
+Usage: fedora-index-batch [-a <action>] [-c <config>] [-i <index>] [-o] 
+                          [-l <log4j>] [-f <Input/Output fileName>]
+
+    -a  the <action> to perform: collect, index, collect_and_index, solr_index, lucene_index
+        when specifying collect or index you must also specify a filename
+    -f  the <Input/Output fileName> used in the collect and index actions
+    -c  use <config> properties file; default is to use
+        \$FEDORA_HOME/server/config/properties.xml
+    -i  write to <index> lucene index; default is to use the index
+        defined in <config>; index directory will be created
+        if it doesn't exist
+    -o  optimize the index when indexing is done
+    -l  use <log4j> config file; default is to use built-in configuration
+
+    Read list of pids to index from stdin
+EOS
+
+    exit(1);
+}
+
+
+

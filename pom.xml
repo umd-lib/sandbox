@@ -24,6 +24,24 @@
           <!-- see goals wiki page for configuration options -->
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>wagon-maven-plugin</artifactId>
+        <version>1.0-beta-3</version>
+        <executions>
+          <execution>
+            <id>copy-fedora-batch-index</id>
+            <phase>install</phase>
+            <goals>
+              <goal>upload-single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <fromFile>${basedir}/scripts/fedora-index-batch-sample</fromFile>
+          <url>file:///apps/fedora/bin/</url>
+        </configuration>
+       </plugin>             
     </plugins>
   </build>
 </project>
